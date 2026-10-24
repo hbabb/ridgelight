@@ -4,7 +4,7 @@ My personal website: projects, blog posts, and resume.
 
 Built with Go, templ, Alpine.js, and plain CSS. Content lives in Markdown and YAML files in this repo. No database.
 
-> **Status:** Planned. Not started yet.
+> **Status:** This is a work in progress. The site is functional, but the design is not final and some content is missing.
 
 ---
 
