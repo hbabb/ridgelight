@@ -27,8 +27,11 @@ test:
     go test ./...
 
 # Run the server at http://localhost:8080
+[continue]
 run:
-    go run ./cmd/server
+    # go run ./cmd/server
+    go build -o bin/ridgelight ./cmd/server
+    ./bin/ridgelight
 
 # Run go tidy to clean up dependencies
 tidy:
