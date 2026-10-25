@@ -21,16 +21,16 @@ Built with Go, templ, Alpine.js, and plain CSS. Content lives in Markdown and YA
 
 ## Stack
 
-| Part          | Tool                                         | Role                                               |
-| ------------- | -------------------------------------------- | -------------------------------------------------- |
-| Server        | Go (`net/http`)                              | Serves every page; one binary                      |
-| Templates     | [templ](https://templ.guide)                 | Type-checked HTML components compiled to Go        |
-| Interactivity | [Alpine.js](https://alpinejs.dev)            | Small client-side behavior (menus, filters)        |
+| Part          | Tool                                         | Role                                                         |
+| ------------- | -------------------------------------------- | ------------------------------------------------------------ |
+| Server        | Go (`net/http`)                              | Serves every page; one binary                                |
+| Templates     | [templ](https://templ.guide)                 | Type-checked HTML components compiled to Go                  |
+| Interactivity | [Alpine.js](https://alpinejs.dev)            | Small client-side behavior (menus, filters)                  |
 | Partial pages | [Alpine AJAX](https://alpine-ajax.js.org)    | Alpine plugin; updates parts of a page from server responses |
-| Styling       | Plain CSS                                    | No CSS framework, no build step                    |
-| Markdown      | [goldmark](https://github.com/yuin/goldmark) | Renders blog posts and project write-ups           |
-| Resume data   | `resume.yaml`                                | JSON Resume structure, read by Ridgelight's own structs |
-| Files         | Go `embed`                                   | Content and static files are baked into the binary |
+| Styling       | Plain CSS                                    | No CSS framework, no build step                              |
+| Markdown      | [goldmark](https://github.com/yuin/goldmark) | Renders blog posts and project write-ups                     |
+| Resume data   | `resume.yaml`                                | JSON Resume structure, read by Ridgelight's own structs      |
+| Files         | Go `embed`                                   | Content and static files are baked into the binary           |
 
 ---
 
@@ -141,16 +141,17 @@ templ and govulncheck are tracked as project tools in `go.mod` (Go 1.24+ `tool` 
 
 Run `just` to list every task.
 
-| Task              | What it does                                         |
-| ----------------- | ---------------------------------------------------- |
-| `just templ-fmt`  | Formats `.templ` files                               |
-| `just generate`   | Generates Go code from `.templ` files                |
-| `just fmt`        | Formats Go files (gofumpt and goimports)             |
-| `just lint`       | Runs the linters in `.golangci.yml`                  |
-| `just vuln`       | Checks for known vulnerabilities with govulncheck    |
-| `just test`       | Runs the tests                                       |
-| `just run`        | Runs the server at http://localhost:8080             |
-| `just pre-commit` | Runs templ-fmt, generate, fmt, lint, vuln, and test  |
+| Task              | What it does                                                     |
+| ----------------- | ---------------------------------------------------------------- |
+| `just templ-fmt`  | Formats `.templ` files                                           |
+| `just generate`   | Generates Go code from `.templ` files                            |
+| `just fmt`        | Formats Go files (gofumpt and goimports)                         |
+| `just lint`       | Runs the linters in `.golangci.yml`                              |
+| `just vuln`       | Checks for known vulnerabilities with govulncheck                |
+| `just test`       | Runs the tests                                                   |
+| `just tidy`       | Adds missing and removes unused modules in `go.mod` and `go.sum` |
+| `just run`        | Runs the server at http://localhost:8080                         |
+| `just pre-commit` | Runs tidy, templ-fmt, generate, fmt, lint, vuln, and test        |
 
 ### Before each commit
 

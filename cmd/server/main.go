@@ -2,10 +2,16 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/a-h/templ"
@@ -14,15 +20,43 @@ import (
 	"github.com/hbabb/ridgelight/views"
 )
 
+// addr is the address the server listens on.
+const addr = ":8080"
+
 func main() {
+	// ctx is canceled when the process receives Ctrl+C (SIGINT) or SIGTERM,
+	// which is what Podman sends when it stops a container.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	err := run(ctx)
+	stop()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// run opens the listener on addr and serves until ctx is canceled.
+func run(ctx context.Context) error {
+	var lc net.ListenConfig
+	ln, err := lc.Listen(ctx, "tcp", addr)
+	if err != nil {
+		return fmt.Errorf("listening on %s: %w", addr, err)
+	}
+
+	return serve(ctx, ln)
+}
+
+// serve runs the HTTP server on ln until ctx is canceled,
+// then shuts down gracefully, letting in-flight requests finish.
+// It is separated from run so tests can pass their own listener.
+func serve(ctx context.Context, ln net.Listener) error {
 	mux, err := newMux()
 	if err != nil {
-		log.Fatalf("setting up routes: %v", err)
+		return fmt.Errorf("setting up routes: %w", err)
 	}
 
 	// Timeouts keep slow or stalled clients from holding connections open forever.
 	srv := &http.Server{
-		Addr:              ":8080",
 		Handler:           mux,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
@@ -30,8 +64,32 @@ func main() {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	log.Printf("listening on http://localhost%s", srv.Addr)
-	log.Fatal(srv.ListenAndServe())
+	serveErr := make(chan error, 1)
+	go func() {
+		log.Printf("listening on %s", ln.Addr())
+		serveErr <- srv.Serve(ln)
+	}()
+
+	select {
+	case err := <-serveErr:
+		return fmt.Errorf("serving: %w", err)
+	case <-ctx.Done():
+	}
+
+	// ctx is already canceled, so the shutdown gets its own 10-second deadline.
+	shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		return fmt.Errorf("shutting down: %w", err)
+	}
+
+	if err := <-serveErr; !errors.Is(err, http.ErrServerClosed) {
+		return fmt.Errorf("serving: %w", err)
+	}
+
+	log.Print("server stopped")
+	return nil
 }
 
 // newMux registers every route on a new ServeMux.
