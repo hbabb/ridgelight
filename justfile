@@ -30,5 +30,9 @@ test:
 run:
     go run ./cmd/server
 
+# Run go tidy to clean up dependencies
+tidy:
+  go mod tidy
+
 # Format, generate, lint, scan, and test before commiting
-pre-commit: templ-fmt generate fmt lint vuln test
+pre-commit: tidy templ-fmt generate fmt lint vuln test
