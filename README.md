@@ -114,9 +114,11 @@ ridgelight/
 │   └── adr/                 # Architecture decision records
 ├── .github/
 │   ├── workflows/
-│   │   ├── ci.yml           # On pull request: generate, build, test
+│   │   ├── ci.yml           # On pull request: templ checks, lint, vulnerability scan, test
 │   │   └── deploy.yml       # On merge to main: build, ship, switch blue/green
 │   └── dependabot.yml       # Automatic dependency update PRs
+├── .golangci.yml            # Linter and Go formatter config
+├── justfile                 # Local tasks
 ├── go.mod
 ├── go.sum
 ├── LICENSE                  # TBD
@@ -127,27 +129,36 @@ ridgelight/
 
 ## Development
 
-templ is tracked as a project tool in `go.mod` (Go 1.24+ `tool` directive), so the version is pinned per project and Dependabot can update it.
+### Requirements
 
-The generated `*_templ.go` files are committed, so a fresh clone builds without running templ first. After editing any `.templ` file, regenerate before committing:
+- **Go 1.27.3.** If your installed Go is older, the `go` command downloads the version in `go.mod` automatically.
+- **golangci-lint:** `sudo pacman -S golangci-lint`
+- **Just:** `sudo pacman -S just`
+
+templ and govulncheck are tracked as project tools in `go.mod` (Go 1.24+ `tool` directive), so their versions are pinned per project and Dependabot keeps them updated. No separate install is needed.
+
+### Tasks
+
+Run `just` to list every task.
+
+| Task              | What it does                                         |
+| ----------------- | ---------------------------------------------------- |
+| `just templ-fmt`  | Formats `.templ` files                               |
+| `just generate`   | Generates Go code from `.templ` files                |
+| `just fmt`        | Formats Go files (gofumpt and goimports)             |
+| `just lint`       | Runs the linters in `.golangci.yml`                  |
+| `just vuln`       | Checks for known vulnerabilities with govulncheck    |
+| `just test`       | Runs the tests                                       |
+| `just run`        | Runs the server at http://localhost:8080             |
+| `just pre-commit` | Runs templ-fmt, generate, fmt, lint, vuln, and test  |
+
+### Before each commit
 
 ```sh
-go tool templ generate
+just pre-commit
 ```
 
-Run the server:
-
-```sh
-go run ./cmd/server
-```
-
-Then open http://localhost:8080.
-
-Run tests:
-
-```sh
-go test ./...
-```
+The generated `*_templ.go` files are committed, so a fresh clone builds without running templ first. `just pre-commit` regenerates them, so they stay in sync with the `.templ` files.
 
 ---
 
@@ -155,7 +166,7 @@ go test ./...
 
 Hosted on a DigitalOcean Droplet.
 
-1. **Pull request** → `ci.yml` runs templ generate, build, and tests. Nothing deploys.
+1. **Pull request** → `ci.yml` checks that generated templ files are current and formatted, runs golangci-lint and govulncheck, and runs the tests. Nothing deploys.
 2. **Merge to `main`** → `deploy.yml` builds the binary in GitHub Actions (never on the Droplet).
 3. The new version starts in the idle container (blue or green), managed by Podman Quadlet.
 4. After a health check passes, Caddy is switched to the new container and reloaded.
@@ -178,6 +189,7 @@ Recorded in [`docs/adr/`](docs/adr/), one file per decision, numbered in order (
 7. [DigitalOcean Droplet with blue/green deploys](docs/adr/0007-digitalocean-droplet-blue-green.md)
 8. [Changes reach `main` only through pull requests](docs/adr/0008-pull-requests-only-to-main.md)
 9. [Commit generated templ files](docs/adr/0009-commit-generated-templ-files.md)
+10. [Local tooling: Just, go.mod tools, and golangci-lint](docs/adr/0010-local-tooling-just-gomod-golangci-lint.md)
 
 ---
 
