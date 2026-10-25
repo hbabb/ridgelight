@@ -15,21 +15,10 @@ import (
 )
 
 func main() {
-	// Strip the "static" folder prefix from the embedded files, so
-	// static/css/main.css is served at /static/css/main.css instead of
-	// /static/static/css/main.css.
-	staticFS, err := fs.Sub(ridgelight.Static, "static")
+	mux, err := newMux()
 	if err != nil {
-		log.Fatalf("loading embedded static files: %v", err)
+		log.Fatalf("setting up routes: %v", err)
 	}
-
-	mux := http.NewServeMux()
-
-	// "{$}" makes this match only the exact path "/".
-	// Without it, "GET /" would catch every path that has no other route.
-	mux.Handle("GET /{$}", templ.Handler(views.Home()))
-
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(staticFS)))
 
 	// Timeouts keep slow or stalled clients from holding connections open forever.
 	srv := &http.Server{
