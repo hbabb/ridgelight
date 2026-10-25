@@ -1,3 +1,4 @@
+// Package ridgelight holds the files that are compiled into the Ridgelight binary.
 package ridgelight
 
 import "embed"
