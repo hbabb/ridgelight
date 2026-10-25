@@ -1,3 +1,4 @@
+// Command server runs the Ridgelight web server.
 package main
 
 import (
@@ -7,6 +8,7 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
+
 	"github.com/hbabb/ridgelight"
 	"github.com/hbabb/ridgelight/views"
 )

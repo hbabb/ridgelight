@@ -1,0 +1,32 @@
+version: "2"
+
+linters:
+  # Keep the five defaults: errcheck, govet, ineffassign, staticcheck, unused.
+  default: standard
+  enable:
+    - errorlint
+    - gosec
+    - nilerr
+    - bodyclose
+    - noctx
+    - usestdlibvars
+    - gocritic
+    - revive
+    - unconvert
+    - unparam
+    - modernize
+    - misspell
+    - nolintlint
+  settings:
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/hbabb/ridgelight
