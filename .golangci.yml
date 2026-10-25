@@ -17,6 +17,7 @@ linters:
     - modernize
     - misspell
     - nolintlint
+    - testifylint
   settings:
     nolintlint:
       require-explanation: true

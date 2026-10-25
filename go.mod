@@ -2,7 +2,10 @@ module github.com/hbabb/ridgelight
 
 go 1.27.3
 
-require github.com/a-h/templ v0.3.1070
+require (
+	github.com/a-h/templ v0.3.1070
+	github.com/stretchr/testify v1.12.1
+)
 
 require (
 	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
@@ -14,6 +17,7 @@ require (
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
