@@ -26,9 +26,10 @@ Built with Go, templ, Alpine.js, and plain CSS. Content lives in Markdown and YA
 | Server        | Go (`net/http`)                              | Serves every page; one binary                      |
 | Templates     | [templ](https://templ.guide)                 | Type-checked HTML components compiled to Go        |
 | Interactivity | [Alpine.js](https://alpinejs.dev)            | Small client-side behavior (menus, filters)        |
+| Partial pages | [Alpine AJAX](https://alpine-ajax.js.org)    | Alpine plugin; updates parts of a page from server responses |
 | Styling       | Plain CSS                                    | No CSS framework, no build step                    |
 | Markdown      | [goldmark](https://github.com/yuin/goldmark) | Renders blog posts and project write-ups           |
-| Resume data   | `resume.yaml`                                | JSON Resume structure                              |
+| Resume data   | `resume.yaml`                                | JSON Resume structure, read by Ridgelight's own structs |
 | Files         | Go `embed`                                   | Content and static files are baked into the binary |
 
 ---
@@ -128,7 +129,7 @@ ridgelight/
 
 templ is tracked as a project tool in `go.mod` (Go 1.24+ `tool` directive), so the version is pinned per project and Dependabot can update it.
 
-Generate Go code from `.templ` files:
+The generated `*_templ.go` files are committed, so a fresh clone builds without running templ first. After editing any `.templ` file, regenerate before committing:
 
 ```sh
 go tool templ generate
@@ -168,16 +169,24 @@ Direct pushes to `main` are blocked by branch protection; changes arrive only th
 
 Recorded in [`docs/adr/`](docs/adr/), one file per decision, numbered in order (`0001-...md`, `0002-...md`).
 
+1. [Record architecture decisions](docs/adr/0001-record-architecture-decisions.md)
+2. [Live Go server, not a static site](docs/adr/0002-live-go-server.md)
+3. [templ for HTML templates](docs/adr/0003-templ-for-html.md)
+4. [Plain CSS, no build step](docs/adr/0004-plain-css-no-build-step.md)
+5. [Content in the repo, embedded, no database](docs/adr/0005-content-in-repo-no-database.md)
+6. [Resume data in JSON Resume structure, parsed by Ridgelight](docs/adr/0006-resume-json-resume-yaml.md)
+7. [DigitalOcean Droplet with blue/green deploys](docs/adr/0007-digitalocean-droplet-blue-green.md)
+8. [Changes reach `main` only through pull requests](docs/adr/0008-pull-requests-only-to-main.md)
+9. [Commit generated templ files](docs/adr/0009-commit-generated-templ-files.md)
+
 ---
 
 ## Open decisions
 
 - Domain
-- Alpine.js version: `3.x.x` in the CDN link (always latest v3) or a pinned exact version
+- Alpine.js and Alpine AJAX: keep serving them from `static/js/` (current) or load them from a CDN
 - Front matter parsing: goldmark extension or parse the YAML block directly
 - How the build reaches the Droplet: container image or binary
-- Whether the resume structs come from resumekiln as a shared package
-- Whether generated `*_templ.go` files are committed or ignored
 - License
 
 ---
